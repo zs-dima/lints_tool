@@ -1,0 +1,29 @@
+name: lints_tool
+description: A strict, prod-ready lint and analyzer rule set for Dart and Flutter projects, built on flutter_lints and DCM.
+
+version: 1.0.1
+
+homepage: https://github.com/zs-dima/lints_tool
+repository: https://github.com/zs-dima/lints_tool
+issue_tracker: https://github.com/zs-dima/lints_tool/issues
+
+topics:
+  - lints
+  - analyzer
+  - dcm
+  - style
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
+environment:
+  sdk: ^3.13.2
+
+# No dependencies, by design. This package ships two YAML files and nothing else: an
+# `analysis_options.yaml` that depends on a package would make every consumer resolve that
+# package before it could analyze a single line.
