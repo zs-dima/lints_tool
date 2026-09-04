@@ -1,0 +1,104 @@
+name: Flutter package
+
+# The gate for a package that needs the Flutter SDK, plus the example app that proves it renders.
+on:
+  workflow_call:
+    inputs:
+      flutter-version:
+        description: "Exact Flutter version; the consuming apps pin the same one."
+        type: string
+        required: true
+      channel:
+        type: string
+        default: "stable"
+      example-directory:
+        description: "Path to the example app. Empty skips the example job."
+        type: string
+        default: ""
+      publish-check:
+        description: "Run `pub publish --dry-run`. A package that is not yet publishable sets this to false."
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Format · Analyze · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
+          channel: ${{ inputs.channel }}
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: |
+          git ls-files '*.dart' \
+            | grep -vE '\.(g|freezed|gen)\.dart$' \
+            | xargs -r dart format --output=none --set-exit-if-changed
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Test
+        run: flutter test --file-reporter=json:reports/tests.json  # rendered by the report job
+
+      - name: Upload test results
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/tests.json
+
+      - name: Publish dry run
+        if: ${{ inputs.publish-check }}
+        run: flutter pub publish --dry-run
+
+  example:
+    name: Example
+    if: ${{ inputs.example-directory != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: ${{ inputs.example-directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
+          channel: ${{ inputs.channel }}
+          cache: true
+
+      # The example resolves on its own, through the package's published surface.
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Test
+        run: flutter test
+
+      # Web needs no toolchain beyond the SDK; Android is where the consuming apps ship first.
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Build apk
+        run: flutter build apk --debug

@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   ci:
-    # One recipe for every package repository, pinned to a tag (zs-dima/.github).
-    uses: zs-dima/.github/.github/workflows/dart-package.yml@v1
+    # The recipe this repository publishes for the others, run against this commit.
+    uses: ./.github/workflows/dart-package.yml
     with:
       test: false

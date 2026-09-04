@@ -1,0 +1,78 @@
+name: Dart package
+
+# The gate every pure-Dart package repository runs: format, analyze, test, publish dry run.
+# One recipe, called by tag; callers never reference `@main`.
+#
+# DCM is not here: its licence is a secret, and a gate that needs a secret cannot run on a fork's
+# pull request. `make dcm` runs it locally.
+on:
+  workflow_call:
+    inputs:
+      sdk:
+        description: "Dart SDK version, as dart-lang/setup-dart takes it."
+        type: string
+        default: "stable"
+      working-directory:
+        description: "Package root, when it is not the repository root."
+        type: string
+        default: "."
+      test:
+        description: "Run `dart test`. A package without tests sets this to false."
+        type: boolean
+        default: true
+      publish-check:
+        description: "Run `pub publish --dry-run`. A package that is not yet publishable sets this to false."
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Format · Analyze · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ inputs.sdk }}
+
+      - name: Resolve dependencies
+        run: dart pub get
+
+      # Hand-written sources only; generated output keeps its generator's formatting.
+      - name: Check formatting
+        run: |
+          git ls-files '*.dart' \
+            | grep -vE '\.(g|freezed|gen)\.dart$' \
+            | xargs -r dart format --output=none --set-exit-if-changed
+
+      - name: Analyze
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: Test
+        if: ${{ inputs.test }}
+        # `dart_test.yaml` declares the JSON file reporter that the report job renders.
+        run: dart test
+
+      - name: Upload test results
+        if: ${{ inputs.test && (success() || failure()) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ inputs.working-directory }}/reports/tests.json
+
+      # Catches a missing LICENSE, a template README, a CHANGELOG without the current version and
+      # a git dependency in `dependencies` (a dev one is invisible to consumers and fine).
+      - name: Publish dry run
+        if: ${{ inputs.publish-check }}
+        run: dart pub publish --dry-run
