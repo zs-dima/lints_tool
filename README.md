@@ -38,6 +38,28 @@ CI run and an IDE see the same set.
 The DCM rules are read whether or not a DCM licence is present; without one they do nothing and
 the analyzer half still applies.
 
+## The shared CI recipe
+
+`.github/workflows/` also holds the gate every repository in the estate runs, as reusable
+workflows: `dart-package.yml`, `flutter-package.yml` and `test-report.yml`. They live next to the
+rules because a repository that includes one includes the other, and a shared workflow has to sit
+in a public repository for a public caller to reach it. They are not part of the published package
+(`.pubignore`).
+
+A caller pins the floating major tag:
+
+```yaml
+jobs:
+  ci:
+    uses: zs-dima/lints_tool/.github/workflows/dart-package.yml@v1
+```
+
+Inputs: `sdk` and `working-directory`, `test: false` for a package with no tests,
+`publish-check: false` while a package is not publishable; the Flutter recipe takes
+`flutter-version`, `channel` and `example-directory`. Move `v1` when a change is backwards
+compatible (`git tag -f v1 && git push -f origin v1`); cut `v2` when a caller has to change its
+inputs.
+
 ## Changelog
 
 [CHANGELOG.md](CHANGELOG.md)
