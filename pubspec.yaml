@@ -1,7 +1,7 @@
 name: lints_tool
 description: A strict, prod-ready lint and analyzer rule set for Dart and Flutter projects, built on flutter_lints and DCM.
 
-version: 1.0.1
+version: 1.1.0
 
 homepage: https://github.com/zs-dima/lints_tool
 repository: https://github.com/zs-dima/lints_tool
