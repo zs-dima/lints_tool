@@ -22,7 +22,7 @@ platforms:
   windows:
 
 environment:
-  sdk: ^3.13.2
+  sdk: ^3.13.4
 
 # No dependencies, by design. This package ships two YAML files and nothing else: an
 # `analysis_options.yaml` that depends on a package would make every consumer resolve that

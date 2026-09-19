@@ -4,20 +4,16 @@ Include the rule set from `analysis_options.yaml`:
 
 ```yaml
 include: package:lints_tool/lints_tool.yaml
-
-formatter:
-  page_width: 120
-  trailing_commas: preserve
 ```
+
+`formatter:` (`page_width: 120`, `trailing_commas: preserve`) arrives with the include, so a
+consumer does not repeat it.
 
 Depend on it as a dev dependency:
 
 ```yaml
 dev_dependencies:
-  lints_tool:
-    git:
-      url: https://github.com/zs-dima/lints_tool.git
-      ref: v1.0.1
+  lints_tool: ^1.1.0
 ```
 
 Then run the analyzer with infos and warnings fatal, which is what CI does:
@@ -27,4 +23,5 @@ dart analyze --fatal-infos --fatal-warnings
 ```
 
 The DCM rules in the same file apply when a DCM licence is present (`dcm analyze .`); without one
-they do nothing and the analyzer half still holds.
+they do nothing and the analyzer half still holds. They name rules added in DCM 1.36-1.39, and DCM
+ignores a rule it does not know without reporting it, so run 1.39.2 or newer.

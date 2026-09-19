@@ -11,23 +11,19 @@ and [DCM](https://dcm.dev), and used unchanged by every app and package in this 
 ```yaml
 # analysis_options.yaml
 include: package:lints_tool/lints_tool.yaml
-
-formatter:
-  page_width: 120
-  trailing_commas: preserve
 ```
 
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  lints_tool:
-    git:
-      url: https://github.com/zs-dima/lints_tool.git
-      ref: v1.0.1
+  lints_tool: ^1.1.0
 ```
 
-A git dependency in `dev_dependencies` is invisible to anyone who depends on your package, so it
-does not stop you publishing.
+`formatter:` comes with the include — `page_width: 120`, `trailing_commas: preserve` — so a
+consumer does not repeat it.
+
+DCM 1.39.2 or newer: the rule set names rules added in 1.36-1.39, and DCM ignores a rule it does
+not know without saying so, so an older binary quietly runs a different set.
 
 ## What it is
 
