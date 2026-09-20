@@ -122,7 +122,9 @@ analyzer:
             tighten_type_of_initializing_formals: warning
             type_annotate_public_apis: error
             unawaited_futures: warning
-            unnecessary_await_in_return: warning
+            # unnecessary_await_in_return is deliberately absent, not merely unlisted: it is the exact
+        # inverse of `async_return_with_no_await` above. One asks for the `await`, the other asks
+        # to remove it, and no code satisfies both.
             unnecessary_this: warning
             use_full_hex_values_for_flutter_colors: warning
             use_function_type_syntax_for_parameters: warning
@@ -485,16 +487,14 @@ dcm:
             # - avoid-continue
             - avoid-contradictory-expressions
             # - avoid-declaring-call-method
-            - avoid-default-tostring:
-                    ignore-enums: false
+            - avoid-default-tostring
             - avoid-deprecated-usage
             - avoid-double-slash-imports
             - avoid-duplicate-cascades:
                     exclude:
                           - test/**
                           - integration_test/**
-            - avoid-duplicate-collection-elements:
-                    ignore-literals: false
+            - avoid-duplicate-collection-elements
             # - avoid-duplicate-constant-values: #
             #     allowed: [0, 1, "value"]
             - avoid-duplicate-exports
@@ -540,21 +540,23 @@ dcm:
             # - avoid-late-keyword
             # - avoid-local-functions
             - avoid-long-functions:
-                    max-length: 1000
+                    # The real instrument is the `source-lines-of-code: 50` metric, which counts source
+                    # lines rather than comments. This is the backstop against the absurd; `build` is
+                    # long by nature, hence the exception.
+                    max-length: 300
                     ignored-names:
-                          - some
-                          - name
+                          - build
             - avoid-long-files:
-                    max-length: 1500
+                    max-length: 500
             - avoid-long-parameter-list:
                     ignore-optional: true
                     max-number: 7
                     ignored-names:
-                          - some
-                          - name
+                          - copyWith
             - avoid-long-records:
                     max-number: 7
-            - avoid-map-keys-contains
+            - avoid-map-keys-contains:
+                  severity: error
             - avoid-missed-calls
             - avoid-missing-completer-stack-trace
             - avoid-missing-enum-constant-in-map:
@@ -592,6 +594,7 @@ dcm:
             # - avoid-non-empty-constructor-bodies
             - avoid-non-final-exception-class-fields
             - avoid-non-null-assertion:
+                    skip-checked-fields: true
                     exclude:
                           - test/**
                           - integration_test/**
@@ -626,6 +629,8 @@ dcm:
                           - context
             # - avoid-similar-names
             - avoid-single-field-destructuring
+            # Error-class by consequence, but 1 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - avoid-slow-collection-methods
             - avoid-stream-tostring
             - avoid-substring
@@ -636,6 +641,8 @@ dcm:
             - avoid-top-level-members-in-tests
             # - avoid-type-casts # TODO
             - avoid-unassigned-late-fields
+            # Error-class by consequence, but 7 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - avoid-unassigned-stream-subscriptions
             - avoid-uncaught-future-errors
             - avoid-unconditional-break
@@ -652,8 +659,7 @@ dcm:
             - avoid-unnecessary-enum-prefix
             - avoid-unnecessary-extends
             - avoid-unnecessary-futures
-            - avoid-unnecessary-getter:
-                    ignore-upcast: true
+            - avoid-unnecessary-getter
             - avoid-unnecessary-if
             - avoid-unnecessary-late-fields
             - avoid-unnecessary-length-check
@@ -670,14 +676,13 @@ dcm:
             - avoid-unnecessary-return
             - avoid-unnecessary-statements
             - avoid-unnecessary-super
-            - avoid-unnecessary-type-assertions:
-                    severity: style
-            - avoid-unnecessary-type-casts:
-                    severity: style
+            - avoid-unnecessary-type-assertions
+            - avoid-unnecessary-type-casts
             - avoid-unreachable-for-loop
-            - avoid-unrelated-type-assertions:
-                    severity: style
+            - avoid-unrelated-type-assertions
             - avoid-unrelated-type-casts
+            # Error-class by consequence, but 8 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - avoid-unremovable-callbacks-in-listeners
             # In a test, `.first` throwing IS the assertion. Numeric code that indexes by construction
             # (dsp_core) excludes itself locally.
@@ -696,11 +701,15 @@ dcm:
             - avoid-unused-parameters:
                     # Builder signatures ((context, _, child) =>) force unused parameters.
                     ignore-inline-functions: true
-            - avoid-weak-cryptographic-algorithms
+            - avoid-weak-cryptographic-algorithms:
+                  severity: error
+                  ignorable: false
             - avoid-wildcard-cases-with-enums
             - avoid-wildcard-cases-with-sealed-classes
             # - banned-usage
             - binary-expression-operand-order
+            # Error-class by consequence, but 3 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - dispose-class-fields
             - double-literal-format
             # - enum-constants-ordering
@@ -786,9 +795,7 @@ dcm:
             - prefer-add-all
             # - prefer-addition-subtraction-assignments
             - prefer-any-or-every
-            - prefer-assigning-await-expressions:
-                    ignore-if-case: true
-                    ignore-if-null: false
+            - prefer-assigning-await-expressions
             # - prefer-async-await
             # - prefer-boolean-prefixes #
             - prefer-both-inlining-annotations # Web JS
@@ -855,6 +862,8 @@ dcm:
                     excluded: ["n"]
                     min-length: 3
                     max-length: 40
+            # Error-class by consequence, but 24 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - prefer-declaring-const-constructor
             # - prefer-digit-separators
             - prefer-early-return
@@ -880,8 +889,7 @@ dcm:
             # - prefer-named-imports
             - prefer-named-parameters: #
                     max-number: 5 #
-            - prefer-null-aware-elements:
-                    ignore-nullable-chains: true
+            - prefer-null-aware-elements
             - prefer-null-aware-spread
             - prefer-overriding-parent-equality
             - prefer-parentheses-with-if-null
@@ -943,8 +951,9 @@ dcm:
             - prefer-visible-for-testing-on-members
             - prefer-wildcard-pattern
             # - record-fields-ordering
+            # var-names is intentionally unset: `_kTag` occurs nowhere in the line, so naming it
+            # would configure the rule against a convention no code follows.
             - tag-name:
-                    var-names: [_kTag]
                     strip-prefix: _
                     strip-postfix: State
             # - unnecessary-trailing-comma
@@ -965,18 +974,26 @@ dcm:
             - avoid-unassigned-local-variable
             - avoid-unmodified-loop-condition
             - require-atomic-async-updates
-            - avoid-sensitive-query-params
+            - avoid-sensitive-query-params:
+                  severity: error
+                  ignorable: false
+            # Error-class by consequence, but 34 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - prefer-random-secure
 
             # Flutter
             # - add-copy-with
+            # Error-class by consequence, but 2 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - always-remove-listener
-            - avoid-border-all
+            - avoid-border-all:
+                  severity: error
             - avoid-empty-setstate
             - avoid-expanded-as-spacer
             - avoid-flexible-outside-flex
             - avoid-incomplete-copy-with
-            - avoid-incorrect-image-opacity
+            - avoid-incorrect-image-opacity:
+                  severity: error
             - avoid-inherited-widget-in-initstate
             - avoid-late-context
             - avoid-missing-controller
@@ -986,29 +1003,31 @@ dcm:
                     severity: error
                     ignored-names:
                           - preview
-                    ignored-annotations:
-                          - allowedAnnotation
             - avoid-shrink-wrap-in-lists:
                     severity: error
             - avoid-single-child-column-or-row
             - avoid-state-constructors
             - avoid-undisposed-instances:
+                    severity: error
                     ignored-instances:
                           - TapGestureRecognizer
                           - LongPressGestureRecognizer
-                    # ignored-invocations:
-                    #   - withAutoDispose
             - avoid-unnecessary-gesture-detector
             - avoid-stateless-widget-initialized-fields
+            - keep-state-below-its-widget
             - avoid-unnecessary-overrides-in-state
+            # Error-class by consequence, but 1 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - avoid-unnecessary-setstate
             - avoid-unnecessary-stateful-widgets
             - avoid-wrapping-in-padding:
                     severity: error
             - check-for-equals-in-render-object-setters
             - consistent-update-render-object
-            - dispose-fields
-            - pass-existing-future-to-future-builder
+            - dispose-fields:
+                  severity: error
+            - pass-existing-future-to-future-builder:
+                  severity: error
             - pass-existing-stream-to-stream-builder:
                     severity: error
             - prefer-action-button-tooltip
@@ -1016,6 +1035,8 @@ dcm:
             - prefer-async-callback
             - prefer-center-over-align
             - prefer-compute-over-isolate-run
+            # Error-class by consequence, but 1 findings stand in the line today;
+            # raise to `severity: error` once they are cleared.
             - prefer-const-border-radius
             - prefer-constrained-box-over-container
             # - prefer-container
@@ -1029,7 +1050,8 @@ dcm:
             - prefer-padding-over-container
             # - prefer-single-setstate #
             - prefer-single-widget-per-file:
-                    ignore-visible-for-testing: false
+                    # Structure, not taste, so it outranks DCM's default `style`.
+                    severity: warning
                     ignore-private-widgets: true
             - prefer-sized-box-square
             - prefer-sliver-prefix:
@@ -1055,8 +1077,12 @@ dcm:
             - prefer-correct-static-icon-provider
 
             # WebView attack surface
-            - avoid-unrestricted-javascript
-            - avoid-unrestricted-navigation
+            - avoid-unrestricted-javascript:
+                  severity: error
+                  ignorable: false
+            - avoid-unrestricted-navigation:
+                  severity: error
+                  ignorable: false
 
             # Accessibility. `provide-image-semantic-label` is `avoid-missing-image-alt` renamed in
             # DCM 1.39 — it is not web-only, and dropping it took the whole family with it.
@@ -1118,6 +1144,9 @@ dcm:
             # Firebase
             - incorrect-firebase-event-name
             - incorrect-firebase-parameter-name
+
+            # JSON Serializable
+            - specify-unknown-enum-value
 
             # Intl
             - prefer-date-format
