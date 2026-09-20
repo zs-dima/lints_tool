@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-20
+
+### Changed
+
+- `avoid-future-ignore` is enabled, reversing the 1.1.0 decision. `Future.ignore()` is
+  `then(_ignore, onError: _ignore)`: the error is consumed before it reaches the zone, so it never
+  reaches the crash reporter. 400 call sites across the line were rewritten to `unawaited(...)`,
+  which marks a future as intentionally not awaited and still reports its failure.
+- 27 of them were put back under a documented `// ignore:`, in two shapes the rule cannot tell
+  apart from a swallow.
+- 24 are inside the telemetry sinks. The unhandled-error path runs through them
+  (`runZonedGuarded` -> `logZoneError` -> `log.error` -> the sink), so `unawaited` there closes an
+  unbounded feedback loop.
+- 3 are cleanup chains in `http_kit`'s `ApiClient`: `whenComplete` derives a second future from one
+  the caller already receives, so `unawaited` reported every request failure twice (23 tests red).
+  `.ignore()` suppresses the duplicate there, not the error.
+
 ## [1.1.0] - 2026-09-19
 
 Every rule below was measured on BreakerSonar and DoctorNoise before it was kept or dropped.

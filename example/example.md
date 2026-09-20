@@ -13,7 +13,7 @@ Depend on it as a dev dependency:
 
 ```yaml
 dev_dependencies:
-  lints_tool: ^1.1.0
+  lints_tool: ^1.1.1
 ```
 
 Then run the analyzer with infos and warnings fatal, which is what CI does:

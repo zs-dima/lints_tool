@@ -516,8 +516,9 @@ dcm:
             # - avoid-explicit-type-declaration #
             # - avoid-extensions-on-records
             - avoid-function-type-in-records
-            # - avoid-future-ignore # 102/103 hits are a deliberate, commented `.ignore()` — the
-            #   explicit way to say 'not awaited on purpose'. The rule fights the sanctioned idiom.
+            # `.ignore()` is `then(_ignore, onError: _ignore)`: the error never reaches the zone,
+            # so it never reaches Sentry. `unawaited(...)` also says 'not awaited' but still reports.
+            - avoid-future-ignore
             - avoid-future-tostring
             - avoid-generics-shadowing
             - avoid-getter-prefix:

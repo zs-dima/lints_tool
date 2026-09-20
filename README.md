@@ -16,7 +16,7 @@ include: package:lints_tool/lints_tool.yaml
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  lints_tool: ^1.1.0
+  lints_tool: ^1.1.1
 ```
 
 `formatter:` comes with the include — `page_width: 120`, `trailing_commas: preserve` — so a
