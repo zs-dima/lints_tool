@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [Unreleased]
+
+### Fixed
+
+- **The shared CI recipes fail on the test report, not only on the exit code.** `flutter test` and
+  `dart test` exit 0 on a run their own reporter marked failed — a suite that never loaded, measured
+  on the app line 2026-09-14. `flutter-package.yml` and `dart-package.yml` now read the JSON report's
+  `done` event and fail when it is missing or unsuccessful; the example job writes a report too.
+  Consumers pin `@v1`, so this reaches them when the tag moves.
 ## [1.1.1] - 2026-09-20
 
 ### Changed

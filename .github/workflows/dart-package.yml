@@ -64,6 +64,14 @@ jobs:
         # `dart_test.yaml` declares the JSON file reporter that the report job renders.
         run: dart test
 
+      # `dart test` exits 0 on a run its own reporter marked failed — a suite that never loaded
+      # (measured on the app line 2026-09-14). The JSON report's `done` event is the verdict; a
+      # report with no `done` is a run that did not finish.
+      - name: Read the test verdict
+        if: ${{ inputs.test }}
+        run: |
+          jq -e 'select(.type == "done") | .success == true' reports/tests.json > /dev/null             || { echo "::error::reports/tests.json does not record a finished, successful run"; exit 1; }
+
       - name: Upload test results
         if: ${{ inputs.test && (success() || failure()) }}
         uses: actions/upload-artifact@v4

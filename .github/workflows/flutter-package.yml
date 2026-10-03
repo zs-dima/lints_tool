@@ -55,6 +55,13 @@ jobs:
       - name: Test
         run: flutter test --file-reporter=json:reports/tests.json  # rendered by the report job
 
+      # `flutter test` exits 0 on a run its own reporter marked failed — a suite that never loaded
+      # (measured on the app line 2026-09-14). The JSON report's `done` event is the verdict; a
+      # report with no `done` is a run that did not finish.
+      - name: Read the test verdict
+        run: |
+          jq -e 'select(.type == "done") | .success == true' reports/tests.json > /dev/null             || { echo "::error::reports/tests.json does not record a finished, successful run"; exit 1; }
+
       - name: Upload test results
         if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
@@ -94,7 +101,14 @@ jobs:
         run: flutter analyze --fatal-infos --fatal-warnings
 
       - name: Test
-        run: flutter test
+        run: flutter test --file-reporter=json:reports/example-tests.json
+
+      # `flutter test` exits 0 on a run its own reporter marked failed — a suite that never loaded
+      # (measured on the app line 2026-09-14). The JSON report's `done` event is the verdict; a
+      # report with no `done` is a run that did not finish.
+      - name: Read the test verdict
+        run: |
+          jq -e 'select(.type == "done") | .success == true' reports/example-tests.json > /dev/null             || { echo "::error::reports/example-tests.json does not record a finished, successful run"; exit 1; }
 
       # Web needs no toolchain beyond the SDK; Android is where the consuming apps ship first.
       - name: Build web
