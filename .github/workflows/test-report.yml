@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Test report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         with:
           artifact: test-results
           name: Tests
